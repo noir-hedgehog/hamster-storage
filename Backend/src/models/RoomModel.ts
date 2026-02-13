@@ -1,0 +1,120 @@
+import db from '../db/database';
+import { Room, CreateRoomDto, UpdateRoomDto } from '../types';
+
+export class RoomModel {
+  static findAll(): Room[] {
+    const stmt = db.prepare('SELECT * FROM rooms ORDER BY created_at DESC');
+    const results = stmt.all() as any[];
+    return results.map(r => ({
+      ...r,
+      locationId: r.location_id,
+      floorplanX: r.floorplan_x || undefined,
+      floorplanY: r.floorplan_y || undefined,
+      floorplanWidth: r.floorplan_width || undefined,
+      floorplanHeight: r.floorplan_height || undefined,
+      floorplanRotation: r.floorplan_rotation || undefined,
+    }));
+  }
+
+  static findById(id: string): Room | null {
+    const stmt = db.prepare('SELECT * FROM rooms WHERE id = ?');
+    const result = stmt.get(id) as any;
+    if (!result) return null;
+    return {
+      ...result,
+      locationId: result.location_id,
+      floorplanX: result.floorplan_x || undefined,
+      floorplanY: result.floorplan_y || undefined,
+      floorplanWidth: result.floorplan_width || undefined,
+      floorplanHeight: result.floorplan_height || undefined,
+      floorplanRotation: result.floorplan_rotation || undefined,
+    };
+  }
+
+  static findByLocationId(locationId: string): Room[] {
+    const stmt = db.prepare('SELECT * FROM rooms WHERE location_id = ? ORDER BY created_at DESC');
+    const results = stmt.all(locationId) as any[];
+    return results.map(r => ({
+      ...r,
+      locationId: r.location_id,
+      floorplanX: r.floorplan_x || undefined,
+      floorplanY: r.floorplan_y || undefined,
+      floorplanWidth: r.floorplan_width || undefined,
+      floorplanHeight: r.floorplan_height || undefined,
+      floorplanRotation: r.floorplan_rotation || undefined,
+    }));
+  }
+
+  static create(data: CreateRoomDto): Room {
+    const id = `room_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const now = new Date().toISOString();
+    
+    const stmt = db.prepare(`
+      INSERT INTO rooms (id, name, type, location_id, icon, created_at, updated_at)
+      VALUES (?, ?, 'room', ?, ?, ?, ?)
+    `);
+    
+    stmt.run(id, data.name, data.locationId, data.icon || null, now, now);
+    
+    return this.findById(id)!;
+  }
+
+  static update(id: string, data: UpdateRoomDto): Room | null {
+    const existing = this.findById(id);
+    if (!existing) return null;
+
+    const updates: string[] = [];
+    const values: any[] = [];
+
+    if (data.name !== undefined) {
+      updates.push('name = ?');
+      values.push(data.name);
+    }
+    if (data.icon !== undefined) {
+      updates.push('icon = ?');
+      values.push(data.icon);
+    }
+    if (data.floorplanX !== undefined) {
+      updates.push('floorplan_x = ?');
+      values.push(data.floorplanX);
+    }
+    if (data.floorplanY !== undefined) {
+      updates.push('floorplan_y = ?');
+      values.push(data.floorplanY);
+    }
+    if (data.floorplanWidth !== undefined) {
+      updates.push('floorplan_width = ?');
+      values.push(data.floorplanWidth);
+    }
+    if (data.floorplanHeight !== undefined) {
+      updates.push('floorplan_height = ?');
+      values.push(data.floorplanHeight);
+    }
+    if (data.floorplanRotation !== undefined) {
+      updates.push('floorplan_rotation = ?');
+      values.push(data.floorplanRotation);
+    }
+
+    if (updates.length === 0) return existing;
+
+    updates.push('updated_at = ?');
+    values.push(new Date().toISOString());
+    values.push(id);
+
+    const stmt = db.prepare(`
+      UPDATE rooms 
+      SET ${updates.join(', ')}
+      WHERE id = ?
+    `);
+    
+    stmt.run(...values);
+    
+    return this.findById(id);
+  }
+
+  static delete(id: string): boolean {
+    const stmt = db.prepare('DELETE FROM rooms WHERE id = ?');
+    const result = stmt.run(id);
+    return result.changes > 0;
+  }
+}

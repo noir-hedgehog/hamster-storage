@@ -1,0 +1,103 @@
+/* 薄荷绿主色 + 毛玻璃 + 卡片动效 */
+:root {
+  --mint-50: #f0fdf9;
+  --mint-100: #ccfbef;
+  --mint-200: #99f6e0;
+  --mint-300: #5eead4;
+  --mint-400: #2dd4bf;
+  --mint-500: #14b8a6;
+  --mint-600: #0d9488;
+  --mint-700: #0f766e;
+  --mint-900: #134e4a;
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --glass-shadow: 0 8px 32px rgba(20, 184, 166, 0.08);
+}
+
+/* 整页浅薄荷绿渐变背景 */
+.page-mint-gradient {
+  background: linear-gradient(165deg, #f0fdf9 0%, #e6faf5 35%, #f8fdfb 70%, #ffffff 100%);
+  min-height: 100%;
+}
+
+/* 毛玻璃：导航、标签栏、卡片、弹窗 */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px rgba(20, 184, 166, 0.06);
+  border-radius: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* 卡片 hover：微翘起一角 + 阴影 */
+.glass-card:hover {
+  transform: translateY(-2px) rotate(-0.5deg);
+  box-shadow: 0 12px 40px rgba(20, 184, 166, 0.12);
+}
+
+.glass-modal {
+  background: #fff;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+}
+
+/* 主按钮：薄荷绿 */
+.btn-mint {
+  background: var(--mint-500);
+  color: white;
+  transition: background-color 0.2s, transform 0.15s;
+}
+.btn-mint:hover {
+  background: var(--mint-600);
+}
+.btn-mint:active {
+  transform: scale(0.98);
+}
+
+/* 次要按钮 / 导航项 hover */
+.btn-mint-ghost:hover {
+  background: var(--mint-100);
+  color: var(--mint-700);
+}
+
+/* 选中态（Tab、侧边项） */
+.bg-mint-active {
+  background: var(--mint-100);
+  color: var(--mint-700);
+  border-color: var(--mint-500);
+}
+
+/* 输入框 focus 环改为薄荷绿 */
+.ring-mint:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--mint-300);
+}
+
+.border-mint-500 { border-color: var(--mint-500); }
+.text-mint-700 { color: var(--mint-700); }
+.bg-mint-50 { background-color: var(--mint-50); }
+.bg-mint-100 { background-color: var(--mint-100); }
+.bg-mint-500 { background-color: var(--mint-500); }
+.hover\:bg-mint-100:hover { background-color: var(--mint-100); }
+.text-mint-600 { color: var(--mint-600); }
+.text-mint-700 { color: var(--mint-700); }
+.text-mint-900 { color: var(--mint-900); }
+.hover\:text-mint-700:hover { color: var(--mint-700); }
+.focus\:ring-mint-500:focus { box-shadow: 0 0 0 2px var(--mint-500); }
+.border-mint-200 { border-color: var(--mint-200); }
+.bg-mint-500\/10 { background-color: rgba(20, 184, 166, 0.1); }
+.bg-mint-200 { background-color: var(--mint-200); }
+.hover\:bg-mint-200:hover { background-color: var(--mint-200); }
+.hover\:bg-mint-700:hover { background-color: var(--mint-700); }
+.group:hover .group-hover\:bg-mint-100 { background-color: var(--mint-100); }
+.group:hover .group-hover\:text-mint-600 { color: var(--mint-600); }

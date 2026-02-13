@@ -1,0 +1,29 @@
+# 使用 GitHub Release 构建好的镜像运行（不本地 build）
+# 使用前请把下面的镜像名改成你的：ghcr.io/<你的用户名>/<仓库名>:latest
+# 运行：docker compose -f docker-compose.prod.yml up -d
+
+name: storage-app
+
+services:
+  app:
+    image: ghcr.io/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME:latest  # 改成你的镜像地址
+    container_name: storage-app
+    ports:
+      - "3847:3847"
+    environment:
+      NODE_ENV: production
+      PORT: 3847
+      DATABASE_PATH: /app/data/storage.db
+      CORS_ORIGIN: ""
+    volumes:
+      - storage-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3847/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  storage-data:

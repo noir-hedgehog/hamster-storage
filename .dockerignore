@@ -1,0 +1,29 @@
+# 依赖与构建产物（在镜像内重新安装/构建）
+Frontend/node_modules
+Frontend/build
+Backend/node_modules
+Backend/dist
+
+# 开发与版本控制
+.git
+.gitignore
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+
+# 测试与开发
+**/*.test.ts
+**/*.test.tsx
+**/__tests__
+**/coverage
+.vitest
+*.log
+.DS_Store
+
+# 文档（可选保留 README）
+INTEGRATION.md
+TESTING.md
+Backend/QUICKSTART.md
+Backend/TROUBLESHOOTING.md
