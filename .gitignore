@@ -5,6 +5,7 @@ node_modules/
 Frontend/build/
 Backend/dist/
 dist/
+.wrangler/
 build/
 
 # Environment
