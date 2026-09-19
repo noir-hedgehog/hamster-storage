@@ -15,7 +15,7 @@ const notes=[
   'Public HTTPS remains unverified due to external TCP connection timeout',
 ];
 for(const note of notes)if(!section.includes(note))section=section.trimEnd()+`\n      - ${note}\n`;
-if(!source.includes('    notes:',match.index))throw new Error('Missing existing notes');
+if(!match[0].includes('    notes:'))throw new Error('Missing existing notes');
 const backup=file+'.before-mcp-docs';
 if(!fs.existsSync(backup))fs.copyFileSync(file,backup);
 const updated=source.slice(0,match.index)+section+source.slice(match.index+match[0].length);

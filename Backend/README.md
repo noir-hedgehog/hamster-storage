@@ -4,7 +4,7 @@
 
 ## 技术栈
 
-- **运行时**: Node.js 18+
+- **运行时**: Node.js 24（与 Docker 发布环境一致）
 - **框架**: Express.js
 - **语言**: TypeScript
 - **数据库**: SQLite (better-sqlite3)
