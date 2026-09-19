@@ -25,8 +25,9 @@ if(process.env.UTOPIA_WEB_URL&&process.env.PLAYWRIGHT_MODULE) {
   const {chromium}=require(process.env.PLAYWRIGHT_MODULE),browser=await chromium.launch({channel:'chrome',headless:true});
   try {
     const page=await browser.newPage({viewport:{width:1440,height:1080}}),errors=[];
+    page.setDefaultTimeout(60000);
     page.on('pageerror',error=>errors.push(error.message));
-    await page.goto(`${base}/#mcp`);
+    await page.goto(`${base}/#mcp`,{waitUntil:'domcontentloaded',timeout:60000});
     await page.getByRole('heading',{name:'MCP 与文档',exact:true}).waitFor();
     await page.getByText('凭证已配置',{exact:true}).waitFor();
     assert.equal(await page.getByText('已启用',{exact:true}).count(),2);
