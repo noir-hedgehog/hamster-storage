@@ -1,3 +1,5 @@
+# Reference snapshot, not a replacement for the live registry. Re-read
+# /opt/ops/services.yml and update only hamster-storage; other services may exist.
 server:
   host_alias: utopia
   hostname: VM-0-17-ubuntu
@@ -59,3 +61,7 @@ services:
       - SQLite backups are under /app/data/backups inside the app container
       - Release selected by /opt/apps/hamster-storage/release.env
       - DNS A record verified; public HTTPS validation pending
+      - MCP release 20260919-mcp-docs-v1 verified via HTTP and SSH stdio
+      - In-app guide /#mcp; documentation download /api/mcp/documentation
+      - Separate read and write tokens in /opt/apps/hamster-storage/.mcp.env (root only)
+      - MCP auth does not protect the existing web and REST API

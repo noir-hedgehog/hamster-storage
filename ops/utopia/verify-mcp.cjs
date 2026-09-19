@@ -7,6 +7,14 @@ const {StreamableHTTPClientTransport}=require('@modelcontextprotocol/sdk/client/
 async function connect(token){const client=new Client({name:'release-verifier',version:'1.0.0'});await client.connect(new StreamableHTTPClientTransport(new URL('http://127.0.0.1:3847/mcp'),{requestInit:{headers:{Authorization:`Bearer ${token}`}}}));return client;}
 async function call(client,name,args={}){const result=await client.callTool({name,arguments:args});assert(!result.isError,JSON.stringify(result));return result.structuredContent;}
 (async()=>{
+  // A container can be running before Express has finished opening its socket.
+  let ready=false;
+  for(let attempt=0;attempt<20;attempt++) {
+    try {ready=(await fetch('http://127.0.0.1:3847/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{}
+    if(ready)break;
+    await new Promise(resolve=>setTimeout(resolve,500));
+  }
+  assert(ready,'Application did not become ready within the bounded startup window');
   const mode=process.env.VERIFY_MODE||'live',read=await connect(process.env.MCP_READ_TOKEN),write=await connect(process.env.MCP_WRITE_TOKEN);
   try {
     const info=await(await fetch('http://127.0.0.1:3847/api/mcp/info')).json();
