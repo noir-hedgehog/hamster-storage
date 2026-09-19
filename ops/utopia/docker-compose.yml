@@ -3,7 +3,7 @@ name: hamster-storage
 services:
   app:
     build:
-      context: ../..
+      context: ./source
       dockerfile: Dockerfile
     container_name: hamster-storage-app
     expose:
