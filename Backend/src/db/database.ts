@@ -1,6 +1,7 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import { initializeSpace } from '../models/SpaceModel';
 
 const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../data/storage.db');
 const dbDir = path.dirname(dbPath);
@@ -302,7 +303,8 @@ export function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_item_tags_tag_id ON item_tags(tag_id);
   `);
 
-  console.log('数据库初始化完成');
+  initializeSpace();
+  console.error('数据库初始化完成');
 }
 
 export default db;

@@ -17,6 +17,8 @@ artifacts
 .gitignore
 *.md
 !README.md
+!MCP.md
+.mcp.env
 .env
 .env.*
 !.env.example

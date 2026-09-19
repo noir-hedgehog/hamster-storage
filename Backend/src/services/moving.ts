@@ -28,26 +28,6 @@ export function initializeMoving() {
   );`);
 }
 
-export function parseInput(input: string): Candidate[] {
-  const text = input.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '');
-  if (text.startsWith('[') || text.startsWith('{')) {
-    const json = JSON.parse(text);
-    return normalizeCandidates(Array.isArray(json) ? json : json.items);
-  }
-  return normalizeCandidates(text.split(/[\n；;]+/).map(line => line.trim()).filter(Boolean).map(line => {
-    const parts = line.split(/[,，]/).map(part => part.trim());
-    const quantity = line.match(/(?:数量|qty|\bx)\s*[:：]?\s*(\d+)\s*([包袋件个瓶盒只桶组台本条套张双支把])?/i)
-      || parts[0].match(/\s*(\d+)\s*([包袋件个瓶盒只桶组台本条套张双支把])\s*$/);
-    const field = (pattern: string) => line.match(new RegExp(`(?:${pattern})\\s*[:：]?\\s*([^,，]+)`, 'i'))?.[1]?.trim();
-    return {
-      name: parts[0].replace(/\s*(\d+)\s*[包袋件个瓶盒只桶组台本条套张双支把]\s*$/, '').trim(),
-      quantity: quantity ? Number(quantity[1]) : 1, unit: quantity?.[2] || '件',
-      location: field('位置|放在|收纳在') || '待整理', brand: field('品牌') || '',
-      category: field('分类') || '', price: Number(field('价格|价钱|¥|￥') || 0),
-    };
-  }));
-}
-
 export function normalizeCandidates(value: unknown): Candidate[] {
   const rows = z.array(z.record(z.unknown())).min(1).max(500).parse(value);
   return rows.map(row => candidate.parse({ ...row,
@@ -112,7 +92,7 @@ function resolveStorage(location: string): string {
   return id;
 }
 
-export function importMovingItems(candidates: Candidate[], input: string, source = 'conversation') {
+export function importMovingItems(candidates: Candidate[], input: string, source = 'migration') {
   return db.transaction(() => {
     const preview = previewItems(candidates);
     const imported = [];

@@ -29,6 +29,7 @@ RUN npm ci --omit=dev
 # 拷贝后端编译产物与前端静态
 COPY --from=backend /app/backend/dist ./dist
 COPY --from=frontend /app/frontend/build ./public
+COPY MCP.md ./docs/MCP.md
 
 ENV NODE_ENV=production
 ENV PORT=3847

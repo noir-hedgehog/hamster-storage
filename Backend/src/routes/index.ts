@@ -8,8 +8,10 @@ import { StatsController } from '../controllers/StatsController';
 import { CategoryController } from '../controllers/CategoryController';
 import { TagGroupController } from '../controllers/TagGroupController';
 import { TagController } from '../controllers/TagController';
+import { FurnitureModel } from '../models/SpaceModel';
 
 const router = Router();
+router.get('/furniture', (_req, res) => res.json({success:true,data:FurnitureModel.findAll()}));
 
 // 地点路由
 router.get('/locations', LocationController.getAll);

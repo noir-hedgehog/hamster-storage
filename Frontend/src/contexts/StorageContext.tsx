@@ -175,6 +175,11 @@ export function StorageProvider({ children }: { children: ReactNode }) {
         name: room.name,
         locationId: room.locationId,
         icon: room.icon,
+        floorplanX: room.floorplanX,
+        floorplanY: room.floorplanY,
+        floorplanWidth: room.floorplanWidth,
+        floorplanHeight: room.floorplanHeight,
+        floorplanRotation: room.floorplanRotation,
       });
       setRooms(prev => [...prev, newRoom]);
     } catch (err) {
@@ -228,6 +233,11 @@ export function StorageProvider({ children }: { children: ReactNode }) {
         parentStorageId: storage.parentStorageId,
         description: storage.description,
         icon: storage.icon,
+        floorplanX: storage.floorplanX,
+        floorplanY: storage.floorplanY,
+        floorplanWidth: storage.floorplanWidth,
+        floorplanHeight: storage.floorplanHeight,
+        floorplanRotation: storage.floorplanRotation,
       });
       setStorages(prev => [...prev, newStorage]);
     } catch (err) {
@@ -243,6 +253,12 @@ export function StorageProvider({ children }: { children: ReactNode }) {
         name: storage.name,
         description: storage.description,
         icon: storage.icon,
+        parentStorageId: storage.parentStorageId,
+        floorplanX: storage.floorplanX,
+        floorplanY: storage.floorplanY,
+        floorplanWidth: storage.floorplanWidth,
+        floorplanHeight: storage.floorplanHeight,
+        floorplanRotation: storage.floorplanRotation,
       });
       setStorages(prev => prev.map(s => (s.id === id ? updated : s)));
     } catch (err) {

@@ -3,6 +3,7 @@ import path from 'path';
 
 export default defineConfig({
   test: {
+    env: { DATABASE_PATH: ':memory:' },
     globals: true,
     environment: 'node',
     setupFiles: './src/test/setup.ts',

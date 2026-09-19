@@ -7,7 +7,10 @@ export interface Location {
   mapY?: number;
 }
 
+export type RoomGeometry = {unit:'cm';x:number;y:number;width:number;depth:number;height?:number;rotation:number};
+export type Furniture = {id:string;name:string;roomId:string;kind:'bed'|'sofa'|'table'|'chair'|'wardrobe'|'shelf'|'drawers'|'appliance'|'box'|'other';unit:'cm';width:number;depth:number;height:number;x:number;y:number;rotation:number;storageId?:string|null;description?:string};
 export interface Room {
+  geometry?: RoomGeometry;
   id: string;
   name: string;
   type: 'room';

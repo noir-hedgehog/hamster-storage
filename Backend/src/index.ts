@@ -11,6 +11,9 @@ import routes from './routes';
 import movingRoutes from './routes/moving';
 import { initializeMoving } from './services/moving';
 import { errorHandler } from './middleware/errorHandler';
+import { initializeWorkspace } from './services/workspace';
+import { mcpRouter } from './mcp/http';
+import { mcpInfoRouter } from './routes/mcpInfo';
 
 // 加载环境变量
 dotenv.config();
@@ -22,6 +25,7 @@ const API_PREFIX = process.env.API_PREFIX || '/api/v1';
 // 初始化数据库
 initializeDatabase();
 initializeMoving();
+initializeWorkspace();
 
 // 中间件
 app.use(helmet()); // 安全头
@@ -46,6 +50,8 @@ app.get('/health', (req, res) => {
 // API路由
 app.use(API_PREFIX, routes);
 app.use('/api', movingRoutes);
+app.use('/api/mcp', mcpInfoRouter());
+app.use('/mcp', mcpRouter());
 
 // 生产环境：提供前端静态资源（Docker 部署时前端 build 拷贝到 public）
 const publicPath = process.env.PUBLIC_DIR || path.join(__dirname, '..', 'public');
@@ -68,8 +74,10 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // 启动服务器
-app.listen(PORT, () => {
-  console.log(`🚀 服务器运行在 http://localhost:${PORT}`);
+const httpServer = app.listen(PORT, () => {
+  const address = httpServer.address();
+  const actualPort = address && typeof address === 'object' ? address.port : PORT;
+  console.log(`🚀 服务器运行在 http://localhost:${actualPort}`);
   console.log(`📡 API前缀: ${API_PREFIX}`);
   console.log(`💾 数据库路径: ${process.env.DATABASE_PATH || './data/storage.db'}`);
 });

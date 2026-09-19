@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import type { Room, Storage } from '../../types';
+import type { Room, Storage, Furniture } from '../../types';
 import { roomLayout, storageKind, storageRoot } from './layout';
 
-type Props = { rooms: Room[]; storages: Storage[]; selected: string; onSelect: (id: string) => void; view: 'perspective'|'top'; reset: number };
+type Props = { rooms: Room[]; storages: Storage[]; furniture: Furniture[]; selected: string; onSelect: (id: string) => void; view: 'perspective'|'top'; reset: number };
 type SceneHandle = {select: (id: string) => void; fit: () => void; top: (value: boolean) => void};
 
-export default function Scene({rooms, storages, selected, onSelect, view, reset}: Props) {
+export default function Scene({rooms, storages, furniture, selected, onSelect, view, reset}: Props) {
   const host = useRef<HTMLDivElement>(null);
   const api = useRef<SceneHandle>();
   const selectCallback = useRef(onSelect);
@@ -57,7 +57,8 @@ export default function Scene({rooms, storages, selected, onSelect, view, reset}
     };
     let fallbackX = 0;
     rooms.forEach((room, index) => {
-      const rootStorages = storages.filter(s => s.roomId===room.id && (!s.parentStorageId || !storages.some(parent => parent.id===s.parentStorageId)));
+      const roomFurniture=furniture.filter(f=>f.roomId===room.id);
+      const rootStorages = storages.filter(s => s.roomId===room.id && !roomFurniture.some(f=>f.storageId===s.id) && (!s.parentStorageId || !storages.some(parent => parent.id===s.parentStorageId)));
       const layout = roomLayout(room,index,rootStorages.length);
       if (!layout.saved) { layout.x = fallbackX; layout.z = 0; }
       fallbackX = Math.max(fallbackX, layout.x+layout.width+1.5);
@@ -67,6 +68,26 @@ export default function Scene({rooms, storages, selected, onSelect, view, reset}
       box(group,w,.6,.06,w/2,.27,0,'#d5decc');
       box(group,.06,.6,d,0,.27,d/2,'#d5decc');
       label(group, room.name,w/2,.12,d+.25,Math.min(w,1.2));
+      roomFurniture.forEach(f=>{
+        const model=new THREE.Group(),fw=f.width/100,fd=f.depth/100,fh=f.height/100;
+        model.position.set(f.x/100,0,f.y/100);model.rotation.y=-f.rotation*Math.PI/180;
+        model.userData.linkedStorageId=f.storageId;group.add(model);models.set(f.id,model);
+        if(f.kind==='table'||f.kind==='chair') {
+          const top=f.kind==='chair'?fh*.48:fh;
+          box(model,fw,.05,fd,0,top-.025,0,'#bcab8c');
+          [-1,1].forEach(x=>[-1,1].forEach(z=>box(model,Math.min(.04,fw/5),top,Math.min(.04,fd/5),x*fw*.4,top/2,z*fd*.4,'#8f8e77')));
+          if(f.kind==='chair')box(model,fw,fh*.5,Math.min(.04,fd/5),0,fh*.75,-fd/2,'#bcab8c');
+        } else if(f.kind==='bed') {
+          box(model,fw,fh*.75,fd,0,fh*.375,0,'#a3b6ae');
+          box(model,fw,fh*.25,fd*.95,0,fh*.875,0,'#e9e6d8');
+        } else if(f.kind==='sofa') {
+          box(model,fw,fh*.5,fd,0,fh*.25,0,'#a0b5a6');
+          box(model,fw,fh*.5,fd*.2,0,fh*.75,-fd*.4,'#92a899');
+          [-1,1].forEach(sign=>box(model,fw*.12,fh*.3,fd,sign*fw*.44,fh*.65,0,'#92a899'));
+        } else box(model,fw,fh,fd,0,fh/2,0,f.kind==='appliance'?'#e1e4e4':'#aaa990');
+        model.traverse(object=>{if(object instanceof THREE.Mesh){object.userData.storageId=f.id;selectable.push(object);}});
+        label(model,f.name,0,fh+.24,0,Math.max(.9,Math.min(1.8,fw))).visible=false;
+      });
       rootStorages.forEach((storage, i) => {
         const kind = storageKind(storage);
         const sw = Math.max(.06,(storage.floorplanWidth ?? 70)/100);
@@ -114,8 +135,9 @@ export default function Scene({rooms, storages, selected, onSelect, view, reset}
     function select(id: string) {
       const root = storageRoot(id,storages);
       models.forEach((model,key) => model.traverse(object => {
-        if(object instanceof THREE.Sprite) object.visible=key===root;
-        if(object instanceof THREE.Mesh) { const mat=object.material as THREE.MeshStandardMaterial; mat.emissive.set(key===root?'#62874b':'#000000'); mat.emissiveIntensity=key===root?.35:0; }
+        const active=key===root || (!!root && model.userData.linkedStorageId===root);
+        if(object instanceof THREE.Sprite) object.visible=active;
+        if(object instanceof THREE.Mesh) { const mat=object.material as THREE.MeshStandardMaterial; mat.emissive.set(active?'#62874b':'#000000'); mat.emissiveIntensity=active?.35:0; }
       })); render();
     }
     api.current = {select, fit, top(value) {isTop=value; fit();}};
@@ -149,9 +171,11 @@ export default function Scene({rooms, storages, selected, onSelect, view, reset}
       geometries.forEach(g=>g.dispose()); textures.forEach(t=>t.dispose()); materials.forEach(m=>m.dispose());
       renderer.dispose();renderer.forceContextLoss();renderer.domElement.remove();
     };
-  },[rooms,storages,retry]);
+  },[rooms,storages,furniture,retry]);
   useEffect(()=>api.current?.select(selected),[selected]);
   useEffect(()=>api.current?.top(view==='top'),[view]);
   useEffect(()=>api.current?.fit(),[reset]);
-  return <div className="space-canvas" ref={host}>{error && <div className="space-fallback" role="alert"><p>{error}</p><button onClick={()=>setRetry(n=>n+1)}>重新加载 3D</button></div>}</div>;
+  // Keep React's fallback reconciliation outside the imperative canvas host.
+  // Otherwise clearing an error can detach the newly recreated WebGL canvas.
+  return <div className="space-canvas"><div ref={host} style={{position:'absolute',inset:0}}/>{error && <div className="space-fallback" role="alert"><p>{error}</p><button onClick={()=>setRetry(n=>n+1)}>重新加载 3D</button></div>}</div>;
 }

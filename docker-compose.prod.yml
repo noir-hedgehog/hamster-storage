@@ -1,4 +1,4 @@
-# 使用 GitHub Release 构建好的镜像运行（不本地 build）
+# 仓鼠收纳 - 使用 GitHub Release 构建好的镜像运行（不本地 build）
 # 使用前请把下面的镜像名改成你的：ghcr.io/<你的用户名>/<仓库名>:latest
 # 运行：docker compose -f docker-compose.prod.yml up -d
 
@@ -14,6 +14,9 @@ services:
       NODE_ENV: production
       PORT: 3847
       DATABASE_PATH: /app/data/storage.db
+      MCP_READ_TOKEN: ${MCP_READ_TOKEN:-}
+      MCP_WRITE_TOKEN: ${MCP_WRITE_TOKEN:-}
+      MCP_ALLOWED_ORIGINS: ${MCP_ALLOWED_ORIGINS:-}
       CORS_ORIGIN: ""
     volumes:
       - storage-data:/app/data

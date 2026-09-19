@@ -9,11 +9,11 @@ export class StorageModel {
       ...s,
       roomId: s.room_id,
       parentStorageId: s.parent_storage_id || undefined,
-      floorplanX: s.floorplan_x || undefined,
-      floorplanY: s.floorplan_y || undefined,
-      floorplanWidth: s.floorplan_width || undefined,
-      floorplanHeight: s.floorplan_height || undefined,
-      floorplanRotation: s.floorplan_rotation || undefined,
+      floorplanX: s.floorplan_x ?? undefined,
+      floorplanY: s.floorplan_y ?? undefined,
+      floorplanWidth: s.floorplan_width ?? undefined,
+      floorplanHeight: s.floorplan_height ?? undefined,
+      floorplanRotation: s.floorplan_rotation ?? undefined,
     }));
   }
 
@@ -25,11 +25,11 @@ export class StorageModel {
       ...result,
       roomId: result.room_id,
       parentStorageId: result.parent_storage_id || undefined,
-      floorplanX: result.floorplan_x || undefined,
-      floorplanY: result.floorplan_y || undefined,
-      floorplanWidth: result.floorplan_width || undefined,
-      floorplanHeight: result.floorplan_height || undefined,
-      floorplanRotation: result.floorplan_rotation || undefined,
+      floorplanX: result.floorplan_x ?? undefined,
+      floorplanY: result.floorplan_y ?? undefined,
+      floorplanWidth: result.floorplan_width ?? undefined,
+      floorplanHeight: result.floorplan_height ?? undefined,
+      floorplanRotation: result.floorplan_rotation ?? undefined,
     };
   }
 
@@ -40,11 +40,11 @@ export class StorageModel {
       ...s,
       roomId: s.room_id,
       parentStorageId: s.parent_storage_id || undefined,
-      floorplanX: s.floorplan_x || undefined,
-      floorplanY: s.floorplan_y || undefined,
-      floorplanWidth: s.floorplan_width || undefined,
-      floorplanHeight: s.floorplan_height || undefined,
-      floorplanRotation: s.floorplan_rotation || undefined,
+      floorplanX: s.floorplan_x ?? undefined,
+      floorplanY: s.floorplan_y ?? undefined,
+      floorplanWidth: s.floorplan_width ?? undefined,
+      floorplanHeight: s.floorplan_height ?? undefined,
+      floorplanRotation: s.floorplan_rotation ?? undefined,
     }));
   }
 
@@ -55,11 +55,11 @@ export class StorageModel {
       ...s,
       roomId: s.room_id,
       parentStorageId: s.parent_storage_id || undefined,
-      floorplanX: s.floorplan_x || undefined,
-      floorplanY: s.floorplan_y || undefined,
-      floorplanWidth: s.floorplan_width || undefined,
-      floorplanHeight: s.floorplan_height || undefined,
-      floorplanRotation: s.floorplan_rotation || undefined,
+      floorplanX: s.floorplan_x ?? undefined,
+      floorplanY: s.floorplan_y ?? undefined,
+      floorplanWidth: s.floorplan_width ?? undefined,
+      floorplanHeight: s.floorplan_height ?? undefined,
+      floorplanRotation: s.floorplan_rotation ?? undefined,
     }));
   }
 
@@ -75,6 +75,7 @@ export class StorageModel {
     // 参数顺序：id, name, room_id, parent_storage_id, description, icon, created_at, updated_at
     const parentStorageId = data.parentStorageId || null;
     
+    return db.transaction(() => {
     stmt.run(
       id, 
       data.name, 
@@ -86,7 +87,8 @@ export class StorageModel {
       now
     );
     
-    return this.findById(id)!;
+    return this.update(id, data)!;
+    })();
   }
 
   static update(id: string, data: UpdateStorageDto): Storage | null {

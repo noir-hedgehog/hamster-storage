@@ -47,6 +47,9 @@ class ApiClient {
   }
 
   // 地点 API
+  async getFurniture() {
+    return this.request<import('../types').Furniture[]>('/furniture');
+  }
   async getLocations() {
     return this.request<any[]>('/locations');
   }
@@ -85,7 +88,7 @@ class ApiClient {
     return this.request<any>(`/rooms/${id}`);
   }
 
-  async createRoom(data: { name: string; locationId: string; icon?: string }) {
+  async createRoom(data: Omit<import('../types').Room, 'id'|'type'>) {
     return this.request<any>('/rooms', {
       method: 'POST',
       body: JSON.stringify(data),
@@ -127,15 +130,10 @@ class ApiClient {
     return this.request<any>(`/storages/${id}`);
   }
 
-  async createStorage(data: {
-    name: string;
-    roomId: string;
-    parentStorageId?: string;
-    description?: string;
-    icon?: string;
-  }) {
+  async createStorage(data: Omit<import('../types').Storage, 'id'|'type'>) {
     // 确保 undefined 值被转换为 null，以便正确传递到后端
     const payload: any = {
+      ...data,
       name: data.name,
       roomId: data.roomId,
     };

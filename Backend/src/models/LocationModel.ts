@@ -7,8 +7,8 @@ export class LocationModel {
     const results = stmt.all() as any[];
     return results.map(loc => ({
       ...loc,
-      mapX: loc.map_x || undefined,
-      mapY: loc.map_y || undefined,
+      mapX: loc.map_x ?? undefined,
+      mapY: loc.map_y ?? undefined,
     }));
   }
 
@@ -18,8 +18,8 @@ export class LocationModel {
     if (!result) return null;
     return {
       ...result,
-      mapX: result.map_x || undefined,
-      mapY: result.map_y || undefined,
+      mapX: result.map_x ?? undefined,
+      mapY: result.map_y ?? undefined,
     };
   }
 

@@ -14,6 +14,10 @@ export function storageRoot(id: string, storages: Storage[]): string {
 }
 
 export function roomLayout(room: Room, index: number, storageCount: number) {
+  if(room.geometry) {
+    const g=room.geometry;
+    return {saved:true,x:g.x/100,z:g.y/100,width:g.width/100,depth:g.depth/100,rotation:g.rotation*Math.PI/180};
+  }
   const saved = [room.floorplanX, room.floorplanY, room.floorplanWidth, room.floorplanHeight].every(v => Number.isFinite(v));
   const width = saved ? Math.max(.1, room.floorplanWidth! / 100) : Math.max(4, Math.ceil(Math.sqrt(storageCount)) * 1.5 + 1);
   const depth = saved ? Math.max(.1, room.floorplanHeight! / 100) : Math.max(3, Math.ceil(storageCount / Math.max(1, Math.floor((width-1)/1.5))) * 1.4 + 1);

@@ -9,10 +9,13 @@ services:
     container_name: hamster-storage-app
     expose:
       - "3847"
+    env_file:
+      - ./.mcp.env
     environment:
       NODE_ENV: production
       PORT: 3847
       DATABASE_PATH: /app/data/storage.db
+      APP_RELEASE: ${HAMSTER_RELEASE_TAG:-development}
       CORS_ORIGIN: ""
     volumes:
       - hamster-storage-data:/app/data

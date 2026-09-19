@@ -33,12 +33,17 @@ import { CategoryManager } from './components/CategoryManager';
 import { TagManager } from './components/TagManager';
 import { MovingHome } from './components/MovingHome';
 const StoragePreview = lazy(() => import('./components/StoragePreview'));
+const McpDocs = lazy(() => import('./components/McpDocs'));
 
-type View = 'moving' | 'dashboard' | 'storage' | 'storage-visual' | 'items' | 'alerts' | 'categories' | 'tags';
+type View = 'moving' | 'dashboard' | 'storage' | 'storage-visual' | 'items' | 'alerts' | 'categories' | 'tags' | 'mcp';
 
 function AppContent() {
   const { loading, error, refreshData, addLocation, addRoom, addStorage } = useStorage();
-  const [currentView, setCurrentView] = useState<View>('moving');
+  const [currentView, setCurrentView] = useState<View>(()=>window.location.hash.startsWith('#mcp')?'mcp':'moving');
+  React.useEffect(()=>{
+    if(currentView==='mcp')window.history.replaceState(null,'','#mcp');
+    else if(window.location.hash.startsWith('#mcp'))window.history.replaceState(null,'',window.location.pathname+window.location.search);
+  },[currentView]);
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | undefined>(undefined);
   const [showLabelPrint, setShowLabelPrint] = useState(false);
@@ -261,6 +266,7 @@ function AppContent() {
               <div className="hamster-tabs flex gap-1 min-w-max">
                 <button onClick={() => setCurrentView('moving')} className={`px-4 py-3 border-b-2 font-medium ${currentView === 'moving' ? 'bg-mint-active border-mint-500 text-mint-700' : 'border-transparent text-gray-500'}`}>搬家清单</button>
                 <button onClick={() => setCurrentView('storage-visual')} className={`px-4 py-3 border-b-2 font-medium ${currentView === 'storage-visual' ? 'bg-mint-active border-mint-500 text-mint-700' : 'border-transparent text-gray-500'}`}>3D 收纳预览</button>
+                <button onClick={() => setCurrentView('mcp')} className={`px-4 py-3 border-b-2 font-medium ${currentView === 'mcp' ? 'bg-mint-active border-mint-500 text-mint-700' : 'border-transparent text-gray-500'}`}>MCP 与文档</button>
                 <button
                   onClick={() => setCurrentView('dashboard')}
                   className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${
@@ -332,7 +338,8 @@ function AppContent() {
 
             {/* 内容区域 */}
             <div className="flex-1 overflow-hidden">
-              {currentView === 'moving' && <MovingHome onPreview={() => setCurrentView('storage-visual')} />}
+              {currentView === 'moving' && <MovingHome onPreview={() => setCurrentView('storage-visual')} onMcp={() => setCurrentView('mcp')} />}
+              {currentView === 'mcp' && <Suspense fallback={<p className="p-6">正在加载接入文档…</p>}><McpDocs /></Suspense>}
               {currentView === 'dashboard' && <Dashboard />}
               {currentView === 'storage' && (
                 <div className="h-full overflow-y-auto">

@@ -10,6 +10,7 @@ export interface Location {
 }
 
 export interface Room {
+  geometry?: import('../models/SpaceModel').RoomGeometry;
   id: string;
   name: string;
   type: 'room';
@@ -120,13 +121,14 @@ export interface UpdateLocationDto {
   mapY?: number;
 }
 
-export interface CreateRoomDto {
+export interface CreateRoomDto extends UpdateRoomDto {
   name: string;
   locationId: string;
   icon?: string;
 }
 
 export interface UpdateRoomDto {
+  geometry?: import('../models/SpaceModel').RoomGeometry | null;
   name?: string;
   icon?: string;
   floorplanX?: number;
@@ -136,7 +138,7 @@ export interface UpdateRoomDto {
   floorplanRotation?: number;
 }
 
-export interface CreateStorageDto {
+export interface CreateStorageDto extends UpdateStorageDto {
   name: string;
   roomId: string;
   parentStorageId?: string;

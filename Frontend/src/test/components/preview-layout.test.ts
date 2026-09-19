@@ -2,6 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { roomLayout, storageKind, storageRoot } from '../../components/preview/layout';
 import type { Storage } from '../../types';
 describe('3D preview semantics',()=>{
+  it('prefers measured centimeters without overwriting the old schematic layout',()=>{
+    expect(roomLayout({id:'r',name:'卧室',type:'room',locationId:'l',floorplanX:999,floorplanWidth:999,geometry:{unit:'cm',x:0,y:100,width:400,depth:300,rotation:90}},0,0))
+      .toEqual({saved:true,x:0,z:1,width:4,depth:3,rotation:Math.PI/2});
+  });
   it('preserves saved zero coordinates, footprint and rotation',()=>{
     expect(roomLayout({id:'r',name:'客厅',type:'room',locationId:'l',floorplanX:0,floorplanY:50,floorplanWidth:500,floorplanHeight:400,floorplanRotation:90},9,100))
       .toEqual({saved:true,x:0,z:.5,width:5,depth:4,rotation:Math.PI/2});

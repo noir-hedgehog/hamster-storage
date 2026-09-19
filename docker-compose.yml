@@ -1,4 +1,4 @@
-# 家庭收纳 - 单服务编排（前端+后端一体）
+# 仓鼠收纳 - 单服务编排（前端+后端一体）
 # 使用方式：在项目根目录执行 docker-compose up -d --build
 
 name: storage-app
@@ -14,6 +14,9 @@ services:
       NODE_ENV: production
       PORT: 3847
       DATABASE_PATH: /app/data/storage.db
+      MCP_READ_TOKEN: ${MCP_READ_TOKEN:-}
+      MCP_WRITE_TOKEN: ${MCP_WRITE_TOKEN:-}
+      MCP_ALLOWED_ORIGINS: ${MCP_ALLOWED_ORIGINS:-}
       # 若通过同一域名访问，CORS 可留空或设为前端地址
       CORS_ORIGIN: ""
     volumes:

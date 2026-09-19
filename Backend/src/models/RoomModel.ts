@@ -1,4 +1,5 @@
 import db from '../db/database';
+import { readRoomGeometry, saveRoomGeometry, geometrySchema } from './SpaceModel';
 import { Room, CreateRoomDto, UpdateRoomDto } from '../types';
 
 export class RoomModel {
@@ -8,11 +9,12 @@ export class RoomModel {
     return results.map(r => ({
       ...r,
       locationId: r.location_id,
-      floorplanX: r.floorplan_x || undefined,
-      floorplanY: r.floorplan_y || undefined,
-      floorplanWidth: r.floorplan_width || undefined,
-      floorplanHeight: r.floorplan_height || undefined,
-      floorplanRotation: r.floorplan_rotation || undefined,
+      geometry: readRoomGeometry(r.id),
+      floorplanX: r.floorplan_x ?? undefined,
+      floorplanY: r.floorplan_y ?? undefined,
+      floorplanWidth: r.floorplan_width ?? undefined,
+      floorplanHeight: r.floorplan_height ?? undefined,
+      floorplanRotation: r.floorplan_rotation ?? undefined,
     }));
   }
 
@@ -23,11 +25,12 @@ export class RoomModel {
     return {
       ...result,
       locationId: result.location_id,
-      floorplanX: result.floorplan_x || undefined,
-      floorplanY: result.floorplan_y || undefined,
-      floorplanWidth: result.floorplan_width || undefined,
-      floorplanHeight: result.floorplan_height || undefined,
-      floorplanRotation: result.floorplan_rotation || undefined,
+      geometry: readRoomGeometry(result.id),
+      floorplanX: result.floorplan_x ?? undefined,
+      floorplanY: result.floorplan_y ?? undefined,
+      floorplanWidth: result.floorplan_width ?? undefined,
+      floorplanHeight: result.floorplan_height ?? undefined,
+      floorplanRotation: result.floorplan_rotation ?? undefined,
     };
   }
 
@@ -37,11 +40,12 @@ export class RoomModel {
     return results.map(r => ({
       ...r,
       locationId: r.location_id,
-      floorplanX: r.floorplan_x || undefined,
-      floorplanY: r.floorplan_y || undefined,
-      floorplanWidth: r.floorplan_width || undefined,
-      floorplanHeight: r.floorplan_height || undefined,
-      floorplanRotation: r.floorplan_rotation || undefined,
+      geometry: readRoomGeometry(r.id),
+      floorplanX: r.floorplan_x ?? undefined,
+      floorplanY: r.floorplan_y ?? undefined,
+      floorplanWidth: r.floorplan_width ?? undefined,
+      floorplanHeight: r.floorplan_height ?? undefined,
+      floorplanRotation: r.floorplan_rotation ?? undefined,
     }));
   }
 
@@ -54,15 +58,19 @@ export class RoomModel {
       VALUES (?, ?, 'room', ?, ?, ?, ?)
     `);
     
-    stmt.run(id, data.name, data.locationId, data.icon || null, now, now);
-    
-    return this.findById(id)!;
+    return db.transaction(() => {
+      stmt.run(id, data.name, data.locationId, data.icon || null, now, now);
+      return this.update(id, data)!;
+    })();
   }
 
   static update(id: string, data: UpdateRoomDto): Room | null {
     const existing = this.findById(id);
     if (!existing) return null;
 
+    if (data.geometry !== undefined && data.geometry !== null) geometrySchema.parse(data.geometry);
+    if (data.geometry === null && db.prepare('SELECT id FROM furniture WHERE room_id=? LIMIT 1').get(id)) throw new Error('房间存在家具，不能移除实测尺寸');
+    if (data.geometry !== undefined) saveRoomGeometry(id, data.geometry);
     const updates: string[] = [];
     const values: any[] = [];
 
@@ -95,7 +103,7 @@ export class RoomModel {
       values.push(data.floorplanRotation);
     }
 
-    if (updates.length === 0) return existing;
+    if (updates.length === 0 && data.geometry === undefined) return this.findById(id);
 
     updates.push('updated_at = ?');
     values.push(new Date().toISOString());
