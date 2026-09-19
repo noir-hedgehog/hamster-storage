@@ -35,3 +35,7 @@ Sites 线上 DB 的 items 与 import_batches 在本次读取时均为零行，�
 新版本目录：`/opt/apps/hamster-storage/releases/20260919-sites-parity-v1`。compose 通过 `release.env` 选择版本。更新前使用 SQLite backup API 留存数据库备份，同时保存旧 compose 和旧镜像标签。应用的命名卷继续使用原卷。
 
 部署后通过 Caddy 容器内的 `/health` 和 `/api/items` 验证，额外使用隔离临时容器验证真实 Docker 运行与重启持久化。域名 HTTPS 是否可用须单独验证，不能以容器健康代替。
+
+同一个 Docker 网络已有其他应用。反向代理必须使用唯一上游 `hamster-storage-app:3847`，不能使用会冲突的 `app:3847`。本目录 Caddyfile 仅表示仓鼠收纳自己的域名块；部署时应合并这个块，不能覆盖服务器已有其他站点。服务登记也应只更新本服务并保留其他记录。
+
+macOS Node 24 的原生 SQLite 测试使用 `DATABASE_PATH=:memory: npm test -- --run --pool=forks`，避免原生扩展在测试线程退出时的清理冲突；本次正式镜像按已有 Dockerfile 使用 Node 20。

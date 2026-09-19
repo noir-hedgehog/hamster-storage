@@ -52,10 +52,10 @@ services:
     public_ports: [80, 443]
     health:
       url: https://storage.virtualink.cafe/health
-      internal_url: http://app:3847/health
+      internal_url: http://hamster-storage-app:3847/health
     notes:
       - App port 3847 is Docker-network-only; Caddy publishes HTTP and HTTPS
       - SQLite persists in hamster-storage_hamster-storage-data
       - SQLite backups are under /app/data/backups inside the app container
       - Release selected by /opt/apps/hamster-storage/release.env
-      - DNS and public HTTPS validation pending
+      - DNS A record verified; public HTTPS validation pending
