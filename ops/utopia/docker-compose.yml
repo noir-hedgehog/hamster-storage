@@ -1,0 +1,44 @@
+name: hamster-storage
+
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: hamster-storage-app
+    expose:
+      - "3847"
+    environment:
+      NODE_ENV: production
+      PORT: 3847
+      DATABASE_PATH: /app/data/storage.db
+      CORS_ORIGIN: ""
+    volumes:
+      - hamster-storage-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://127.0.0.1:3847/health', r => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: hamster-storage-caddy
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+
+volumes:
+  hamster-storage-data:
+  caddy-data:
+  caddy-config:

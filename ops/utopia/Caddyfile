@@ -1,0 +1,3 @@
+storage.virtualink.cafe {
+    reverse_proxy app:3847
+}
