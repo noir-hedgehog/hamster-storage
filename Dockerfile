@@ -2,7 +2,7 @@
 # 前端 Vite + React，后端 Express + SQLite，单容器运行
 
 # ========== 阶段 1：构建前端 ==========
-FROM node:20-bookworm-slim AS frontend
+FROM node:24-bookworm-slim AS frontend
 WORKDIR /app/frontend
 COPY Frontend/package.json Frontend/package-lock.json ./
 RUN npm ci
@@ -11,7 +11,7 @@ ENV VITE_API_BASE_URL=/api/v1
 RUN npm run build
 
 # ========== 阶段 2：构建后端（TypeScript 编译） ==========
-FROM node:20-bookworm-slim AS backend
+FROM node:24-bookworm-slim AS backend
 WORKDIR /app/backend
 COPY Backend/package.json Backend/package-lock.json ./
 RUN npm ci
@@ -19,10 +19,10 @@ COPY Backend/ .
 RUN npm run build
 
 # ========== 阶段 3：运行镜像 ==========
-FROM node:20-bookworm-slim AS runtime
+FROM node:24-bookworm-slim AS runtime
 WORKDIR /app
 
-# 仅安装生产依赖（better-sqlite3 在当前环境编译）
+# 仅安装生产依赖（better-sqlite3 使用与 Node 24 匹配的原生模块）
 COPY Backend/package.json Backend/package-lock.json ./
 RUN npm ci --omit=dev
 
