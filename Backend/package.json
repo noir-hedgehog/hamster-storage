@@ -1,7 +1,7 @@
 {
   "name": "storage-backend",
   "version": "1.0.0",
-  "description": "家庭收纳管理系统后端API",
+  "description": "仓鼠收纳后端API",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

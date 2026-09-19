@@ -1,0 +1,68 @@
+import assert from 'node:assert/strict';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const base = process.env.PREVIEW_URL || 'http://127.0.0.1:3848';
+const browser = await chromium.launch({headless:true,channel:process.env.BROWSER_CHANNEL || 'chrome',args:['--enable-unsafe-swiftshader']});
+const page = await browser.newPage({viewport:{width:1440,height:1080}});
+const errors=[];page.on('pageerror',error=>errors.push(error.message));
+try {
+  await page.goto(base);
+  await page.getByRole('heading',{name:'这次搬家，带了哪些东西？'}).waitFor();
+  await page.locator('#moving-input').fill('洗衣凝珠 2 袋，放在阳台，价格 39.9；黑色雨伞，放在玄关');
+  await page.getByRole('button',{name:'整理清单',exact:true}).click();
+  await page.getByRole('heading',{name:'确认这 2 条记录'}).waitFor();
+  assert.equal((await(await page.request.get(`${base}/api/items`)).json()).items.length,0);
+  await page.getByRole('button',{name:'确认并保存'}).click();
+  await page.getByRole('status').filter({hasText:'已导入 2 件'}).waitFor();
+  await page.reload();
+  await page.getByRole('cell',{name:'洗衣凝珠 未分类'}).waitFor();
+  await page.screenshot({path:'/tmp/hamster-moving-desktop.png',fullPage:true});
+
+  // Add geometry to this isolated in-memory preview only.
+  const post = async(path, data) => {const r=await page.request.post(`${base}/api/v1/${path}`,{data});assert(r.ok());return (await r.json()).data;};
+  const home=await post('locations',{name:'示例公寓',type:'location'});
+  const room=await post('rooms',{name:'卧室',type:'room',locationId:home.id,floorplanX:0,floorplanY:0,floorplanWidth:550,floorplanHeight:450});
+  const wardrobe=await post('storages',{name:'白橡木衣柜',type:'storage',roomId:room.id,icon:'📁',floorplanX:30,floorplanY:30,floorplanWidth:150,floorplanHeight:65});
+  const drawer=await post('storages',{name:'上层抽屉',type:'storage',roomId:room.id,parentStorageId:wardrobe.id});
+  await post('items',{name:'围巾',storageId:drawer.id,quantity:2,unit:'条'});
+  await post('storages',{name:'搬家收纳箱',type:'storage',roomId:room.id,icon:'📦',floorplanX:300,floorplanY:100,floorplanWidth:75,floorplanHeight:55});
+  await post('storages',{name:'书架',type:'storage',roomId:room.id,icon:'📚',floorplanX:30,floorplanY:220,floorplanWidth:110,floorplanHeight:45});
+  await page.reload();
+  await page.getByRole('button',{name:'3D 收纳预览',exact:true}).click();
+  await page.getByLabel('地点',{exact:true}).selectOption(home.id);
+  await page.locator('.space-canvas canvas').waitFor();
+  await page.getByRole('button',{name:/白橡木衣柜/}).click();
+  await page.locator('.space-detail').getByText('围巾',{exact:true}).waitFor();
+  await page.screenshot({path:'/tmp/hamster-space-desktop.png',fullPage:true});
+  const canvasBounds=await page.locator('.space-canvas canvas').boundingBox();
+  await page.mouse.click(canvasBounds.x+canvasBounds.width*.57,canvasBounds.y+canvasBounds.height*.49);
+  await page.locator('.space-detail h3').filter({hasText:'搬家收纳箱'}).waitFor();
+  await page.locator('.space-canvas canvas').evaluate(canvas=>canvas.getContext('webgl2').getExtension('WEBGL_lose_context').loseContext());
+  await page.getByText('3D 显示已暂停。',{exact:false}).waitFor();
+  await page.getByRole('button',{name:/白橡木衣柜/}).click();
+  await page.locator('.space-detail').getByText('围巾',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'重新加载 3D'}).click();
+  await page.locator('.space-fallback').waitFor({state:'detached'});
+  await page.getByRole('button',{name:'俯视',exact:true}).click();
+  await page.getByRole('button',{name:'视角复位',exact:true}).click();
+  await page.getByRole('button',{name:/上层抽屉/}).click();
+  await page.locator('.space-detail').getByText('围巾',{exact:true}).waitFor();
+  await page.getByRole('button',{name:'地图与布局编辑'}).click();
+  await page.getByRole('button',{name:'3D视图',exact:true}).click();
+  await page.getByRole('heading',{name:'让收纳，一目了然。'}).waitFor();
+  for(let i=0;i<3;i++) {await page.getByRole('button',{name:'搬家清单',exact:true}).click();await page.getByRole('button',{name:'3D 收纳预览',exact:true}).click();await page.locator('.space-canvas canvas').waitFor();}
+  assert.equal(await page.locator('.space-canvas canvas').count(),1);
+  await page.setViewportSize({width:390,height:844});
+  await page.getByLabel('地点',{exact:true}).selectOption(home.id);
+  await page.getByRole('button',{name:/白橡木衣柜/}).click();
+  await page.locator('.space-page').evaluate(el=>el.parentElement.scrollTop=0);
+  await page.screenshot({path:'/tmp/hamster-space-mobile.png',fullPage:true});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  await page.getByRole('button',{name:'搬家清单',exact:true}).click();
+  await page.getByRole('cell',{name:'洗衣凝珠 未分类'}).waitFor();
+  await page.screenshot({path:'/tmp/hamster-moving-mobile.png',fullPage:true});
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
+  assert.deepEqual(errors,[]);
+  console.log(JSON.stringify({passed:true,checks:['import preview without writes','save and reload','nested inventory','canvas picking','WebGL loss and recovery','view presets','layout editor round trip','repeated mount cleanup','mobile overflow','no runtime errors'],screenshots:['/tmp/hamster-moving-desktop.png','/tmp/hamster-space-desktop.png','/tmp/hamster-moving-mobile.png','/tmp/hamster-space-mobile.png']}));
+} catch(error) {await page.screenshot({path:'/tmp/hamster-smoke-failure.png',fullPage:true});console.error('Browser errors:',errors);throw error;} finally {await browser.close();}

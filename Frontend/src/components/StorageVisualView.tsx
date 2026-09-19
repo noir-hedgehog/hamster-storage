@@ -23,6 +23,7 @@ interface RoomLayout {
 
 interface StorageVisualViewProps {
   onClose?: () => void;
+  onOpen3D?: () => void;
 }
 
 // 根据收纳类型创建3D模型
@@ -71,8 +72,7 @@ function createStorageModel(
       break;
     }
 
-    case '抽屉':
-    case '📦': {
+    case '抽屉': {
       // 多个抽屉堆叠
       const drawerCount = 3;
       const drawerHeight = height / drawerCount;
@@ -207,7 +207,7 @@ function createStorageModel(
   return group;
 }
 
-export function StorageVisualView({ onClose }: StorageVisualViewProps) {
+export function StorageVisualView({ onClose, onOpen3D }: StorageVisualViewProps) {
   const { locations, rooms, storages, items, updateLocation, updateRoom, updateStorage, addStorage, addRoom, deleteRoom, categories } = useStorage();
   const [viewMode, setViewMode] = useState<VisualViewMode>('map');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -685,6 +685,7 @@ export function StorageVisualView({ onClose }: StorageVisualViewProps) {
 
           // 创建收纳
           addStorage({
+            type: 'storage',
             name: draggingTemplate.template.name,
             roomId: targetRoom.id,
             description: draggingTemplate.template.description,
@@ -1748,6 +1749,7 @@ export function StorageVisualView({ onClose }: StorageVisualViewProps) {
     
     try {
       await addRoom({
+        type: 'room',
         name: name.trim(),
         locationId: selectedLocation,
         floorplanX: x,
@@ -2010,7 +2012,7 @@ export function StorageVisualView({ onClose }: StorageVisualViewProps) {
             <span className="text-sm">平面图</span>
           </button>
           <button
-            onClick={() => setViewMode('3d')}
+            onClick={() => onOpen3D ? onOpen3D() : setViewMode('3d')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               viewMode === '3d'
                 ? 'bg-mint-600 text-white'
@@ -2625,6 +2627,7 @@ export function StorageVisualView({ onClose }: StorageVisualViewProps) {
                                 if (locationRooms.length === 1) {
                                   try {
                                     await addStorage({
+                                      type: 'storage',
                                       name: template.name,
                                       roomId: locationRooms[0].id,
                                       description: template.description,
@@ -2642,6 +2645,7 @@ export function StorageVisualView({ onClose }: StorageVisualViewProps) {
                                     if (selectedRoom) {
                                       try {
                                         await addStorage({
+                                          type: 'storage',
                                           name: template.name,
                                           roomId: selectedRoom.id,
                                           description: template.description,

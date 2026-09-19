@@ -1,22 +1,22 @@
-/* 薄荷绿主色 + 毛玻璃 + 卡片动效 */
+/* 仓鼠收纳 - 暖琥珀/焦糖主色 + 毛玻璃 + 卡片动效 */
 :root {
-  --mint-50: #f0fdf9;
-  --mint-100: #ccfbef;
-  --mint-200: #99f6e0;
-  --mint-300: #5eead4;
-  --mint-400: #2dd4bf;
-  --mint-500: #14b8a6;
-  --mint-600: #0d9488;
-  --mint-700: #0f766e;
-  --mint-900: #134e4a;
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.9);
-  --glass-shadow: 0 8px 32px rgba(20, 184, 166, 0.08);
+  --mint-50: #fffbeb;
+  --mint-100: #fef3c7;
+  --mint-200: #fde68a;
+  --mint-300: #fcd34d;
+  --mint-400: #fbbf24;
+  --mint-500: #f59e0b;
+  --mint-600: #d97706;
+  --mint-700: #b45309;
+  --mint-900: #78350f;
+  --glass-bg: rgba(255, 251, 235, 0.82);
+  --glass-border: rgba(253, 230, 138, 0.4);
+  --glass-shadow: 0 8px 32px rgba(245, 158, 11, 0.1);
 }
 
-/* 整页浅薄荷绿渐变背景 */
+/* 整页暖色渐变背景（仓鼠小窝感） */
 .page-mint-gradient {
-  background: linear-gradient(165deg, #f0fdf9 0%, #e6faf5 35%, #f8fdfb 70%, #ffffff 100%);
+  background: linear-gradient(165deg, #fffbeb 0%, #fef3c7 30%, #fef9e7 60%, #fffdff 100%);
   min-height: 100%;
 }
 
@@ -34,24 +34,24 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 24px rgba(20, 184, 166, 0.06);
+  box-shadow: 0 4px 24px rgba(245, 158, 11, 0.08);
   border-radius: 1rem;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* 卡片 hover：微翘起一角 + 阴影 */
+/* 卡片 hover：微翘起一角 + 暖色阴影 */
 .glass-card:hover {
   transform: translateY(-2px) rotate(-0.5deg);
-  box-shadow: 0 12px 40px rgba(20, 184, 166, 0.12);
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.14);
 }
 
 .glass-modal {
   background: #fff;
   border: 1px solid var(--glass-border);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1);
 }
 
-/* 主按钮：薄荷绿 */
+/* 主按钮：暖琥珀色 */
 .btn-mint {
   background: var(--mint-500);
   color: white;
@@ -77,7 +77,7 @@
   border-color: var(--mint-500);
 }
 
-/* 输入框 focus 环改为薄荷绿 */
+/* 输入框 focus 环改为暖琥珀 */
 .ring-mint:focus {
   outline: none;
   box-shadow: 0 0 0 2px var(--mint-300);
@@ -95,7 +95,7 @@
 .hover\:text-mint-700:hover { color: var(--mint-700); }
 .focus\:ring-mint-500:focus { box-shadow: 0 0 0 2px var(--mint-500); }
 .border-mint-200 { border-color: var(--mint-200); }
-.bg-mint-500\/10 { background-color: rgba(20, 184, 166, 0.1); }
+.bg-mint-500\/10 { background-color: rgba(245, 158, 11, 0.1); }
 .bg-mint-200 { background-color: var(--mint-200); }
 .hover\:bg-mint-200:hover { background-color: var(--mint-200); }
 .hover\:bg-mint-700:hover { background-color: var(--mint-700); }

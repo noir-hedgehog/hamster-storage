@@ -2,8 +2,9 @@ name: hamster-storage
 
 services:
   app:
+    image: hamster-storage-app:${HAMSTER_RELEASE_TAG:-latest}
     build:
-      context: ./source
+      context: ${HAMSTER_RELEASE_PATH:-./source}
       dockerfile: Dockerfile
     container_name: hamster-storage-app
     expose:

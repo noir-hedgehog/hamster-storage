@@ -119,7 +119,7 @@ export function Dashboard() {
       {/* 欢迎区域 */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">欢迎回来</h1>
-        <p className="text-gray-500 mt-1">这是你的家庭收纳管理中心</p>
+        <p className="text-gray-500 mt-1">你的仓鼠收纳小窝</p>
       </div>
 
       {/* 统计卡片 */}

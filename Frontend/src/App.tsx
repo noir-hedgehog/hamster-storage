@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useState } from 'react';
 import { StorageProvider, useStorage } from './contexts/StorageContext';
 import { LocationTree } from './components/LocationTree';
 import { ItemList } from './components/ItemList';
@@ -31,13 +31,14 @@ import {
 import { DataManager } from './components/DataManager';
 import { CategoryManager } from './components/CategoryManager';
 import { TagManager } from './components/TagManager';
-import { StorageVisualView } from './components/StorageVisualView';
+import { MovingHome } from './components/MovingHome';
+const StoragePreview = lazy(() => import('./components/StoragePreview'));
 
-type View = 'dashboard' | 'storage' | 'storage-visual' | 'items' | 'alerts' | 'categories' | 'tags';
+type View = 'moving' | 'dashboard' | 'storage' | 'storage-visual' | 'items' | 'alerts' | 'categories' | 'tags';
 
 function AppContent() {
   const { loading, error, refreshData, addLocation, addRoom, addStorage } = useStorage();
-  const [currentView, setCurrentView] = useState<View>('dashboard');
+  const [currentView, setCurrentView] = useState<View>('moving');
   const [showItemForm, setShowItemForm] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | undefined>(undefined);
   const [showLabelPrint, setShowLabelPrint] = useState(false);
@@ -199,8 +200,11 @@ function AppContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
               <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">家庭收纳管理系统</h1>
-                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">像维护文件系统一样管理你的家</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate flex items-center gap-2">
+                  <img src="/favicon.ico" alt="" className="w-8 h-8 sm:w-9 sm:h-9 flex-shrink-0" />
+                  <span>仓鼠收纳</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-gray-500 hidden sm:block">像小仓鼠囤粮一样，把家整理得井井有条</p>
               </div>
             </div>
 
@@ -253,8 +257,10 @@ function AppContent() {
           {/* 主内容区域 */}
           <main className="flex-1 flex flex-col overflow-hidden w-full">
             {/* 视图切换标签 */}
-            <div className="glass border-b border-gray-200/60 px-3 sm:px-6 overflow-x-auto">
-              <div className="flex gap-1 min-w-max">
+            <div className="hamster-tabs-scroll glass border-b border-gray-200/60 px-3 sm:px-6 overflow-x-auto">
+              <div className="hamster-tabs flex gap-1 min-w-max">
+                <button onClick={() => setCurrentView('moving')} className={`px-4 py-3 border-b-2 font-medium ${currentView === 'moving' ? 'bg-mint-active border-mint-500 text-mint-700' : 'border-transparent text-gray-500'}`}>搬家清单</button>
+                <button onClick={() => setCurrentView('storage-visual')} className={`px-4 py-3 border-b-2 font-medium ${currentView === 'storage-visual' ? 'bg-mint-active border-mint-500 text-mint-700' : 'border-transparent text-gray-500'}`}>3D 收纳预览</button>
                 <button
                   onClick={() => setCurrentView('dashboard')}
                   className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-2 sm:py-3 font-medium transition-colors border-b-2 whitespace-nowrap ${
@@ -326,6 +332,7 @@ function AppContent() {
 
             {/* 内容区域 */}
             <div className="flex-1 overflow-hidden">
+              {currentView === 'moving' && <MovingHome onPreview={() => setCurrentView('storage-visual')} />}
               {currentView === 'dashboard' && <Dashboard />}
               {currentView === 'storage' && (
                 <div className="h-full overflow-y-auto">
@@ -334,7 +341,7 @@ function AppContent() {
               )}
               {currentView === 'storage-visual' && (
                 <div className="h-full overflow-y-auto">
-                  <StorageVisualView onClose={() => setCurrentView('storage')} />
+                  <Suspense fallback={<p className="p-6">正在加载空间预览…</p>}><StoragePreview onClose={() => setCurrentView('storage')} /></Suspense>
                 </div>
               )}
               {currentView === 'items' && (

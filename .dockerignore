@@ -3,6 +3,14 @@ Frontend/node_modules
 Frontend/build
 Backend/node_modules
 Backend/dist
+node_modules
+dist
+.wrangler
+.sites-runtime
+Backend/data
+**/*.db
+**/*.sqlite*
+artifacts
 
 # 开发与版本控制
 .git

@@ -44,7 +44,7 @@ interface StorageContextType {
   setSelectedNode: (node: { type: string; id: string } | null) => void;
   getStoragePath: (storageId: string) => string;
   refreshAlerts: () => Promise<void>;
-  refreshData: () => Promise<void>;
+  refreshData: (silent?: boolean) => Promise<void>;
 }
 
 const StorageContext = createContext<StorageContextType | undefined>(undefined);
@@ -63,9 +63,9 @@ export function StorageProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
 
   // 加载所有数据
-  const refreshData = useCallback(async () => {
+  const refreshData = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       
       const [
@@ -98,10 +98,11 @@ export function StorageProvider({ children }: { children: ReactNode }) {
       setTags(tagsData);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : '加载数据失败';
+      if (silent) throw err;
       setError(errorMessage);
       console.error('Failed to load data:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, []);
 

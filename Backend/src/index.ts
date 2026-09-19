@@ -8,6 +8,8 @@ import fs from 'fs';
 import dotenv from 'dotenv';
 import { initializeDatabase } from './db/database';
 import routes from './routes';
+import movingRoutes from './routes/moving';
+import { initializeMoving } from './services/moving';
 import { errorHandler } from './middleware/errorHandler';
 
 // 加载环境变量
@@ -19,6 +21,7 @@ const API_PREFIX = process.env.API_PREFIX || '/api/v1';
 
 // 初始化数据库
 initializeDatabase();
+initializeMoving();
 
 // 中间件
 app.use(helmet()); // 安全头
@@ -42,6 +45,7 @@ app.get('/health', (req, res) => {
 
 // API路由
 app.use(API_PREFIX, routes);
+app.use('/api', movingRoutes);
 
 // 生产环境：提供前端静态资源（Docker 部署时前端 build 拷贝到 public）
 const publicPath = process.env.PUBLIC_DIR || path.join(__dirname, '..', 'public');

@@ -1,0 +1,61 @@
+server:
+  host_alias: utopia
+  hostname: VM-0-17-ubuntu
+  public_ip: 43.156.132.51
+  os: Ubuntu 26.04 LTS
+  ssh_user: ubuntu
+  tailscale_ip: null
+  policy:
+    current_access: public_ssh_and_loopback_monitoring
+    later_review: tailscale_only_or_reverse_proxy
+services:
+  ssh:
+    kind: systemd
+    manager: systemd
+    path: /etc/ssh
+    unit: ssh.socket
+    public_ports: [22]
+    health: {check: authenticated_ssh}
+    notes: [Key authentication enabled; password authentication disabled]
+  docker:
+    kind: systemd
+    manager: systemd
+    path: /var/lib/docker
+    unit: docker.service
+    public_ports: []
+    health: {check: docker info}
+    notes: [Local log driver with rotation; use sudo for Docker management]
+  tailscale:
+    kind: systemd
+    manager: systemd
+    path: /var/lib/tailscale
+    unit: tailscaled.service
+    public_ports: ['41641/udp']
+    health: {check: tailscale status}
+    notes: [Account authorization pending; no exit node or subnet routing configured]
+  uptime-kuma:
+    kind: docker_compose
+    manager: docker compose
+    path: /opt/apps/uptime-kuma
+    compose_file: /opt/apps/uptime-kuma/docker-compose.yml
+    public_ports: []
+    health: {url: 'http://127.0.0.1:3001/'}
+    notes:
+      - Bound to 127.0.0.1 only; access via SSH tunnel
+      - Persistent data in Docker volume uptime-kuma_uptime-kuma-data
+      - Initial admin account must be created by user; monitors pending
+  hamster-storage:
+    kind: docker_compose
+    manager: docker compose
+    path: /opt/apps/hamster-storage
+    compose_file: /opt/apps/hamster-storage/docker-compose.yml
+    public_ports: [80, 443]
+    health:
+      url: https://storage.virtualink.cafe/health
+      internal_url: http://app:3847/health
+    notes:
+      - App port 3847 is Docker-network-only; Caddy publishes HTTP and HTTPS
+      - SQLite persists in hamster-storage_hamster-storage-data
+      - SQLite backups are under /app/data/backups inside the app container
+      - Release selected by /opt/apps/hamster-storage/release.env
+      - DNS and public HTTPS validation pending

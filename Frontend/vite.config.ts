@@ -54,6 +54,7 @@
       outDir: 'build',
     },
     server: {
+      proxy: { '/api': 'http://127.0.0.1:3001', '/health': 'http://127.0.0.1:3001' },
       port: 3000,
       open: true,
     },

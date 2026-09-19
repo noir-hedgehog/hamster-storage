@@ -22,6 +22,8 @@ export interface Room {
 
 export interface Storage {
   id: string;
+  created_at?: string;
+  updated_at?: string;
   name: string;
   type: 'storage';
   roomId: string;
